@@ -237,9 +237,6 @@ namespace Data.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("character varying(40)");
 
-                    b.Property<decimal?>("FixedPrice")
-                        .HasColumnType("numeric");
-
                     b.Property<string>("HashPassword")
                         .IsRequired()
                         .HasColumnType("text");
@@ -257,21 +254,39 @@ namespace Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<byte?>("PercentPrice")
-                        .HasColumnType("smallint");
-
                     b.Property<string>("SurName")
                         .HasMaxLength(40)
                         .HasColumnType("character varying(40)");
-
-                    b.Property<int>("TypeCooperation")
-                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CurrencyId");
 
                     b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("Data.Entities.UserProject", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal?>("FixedPrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<byte?>("PercentPrice")
+                        .HasColumnType("smallint");
+
+                    b.Property<int>("TypeCooperation")
+                        .HasColumnType("integer");
+
+                    b.HasKey("UserId", "ProjectId");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("UserProjects", (string)null);
                 });
 
             modelBuilder.Entity("ProductRewards", b =>
@@ -377,6 +392,25 @@ namespace Data.Migrations
                     b.Navigation("Currency");
                 });
 
+            modelBuilder.Entity("Data.Entities.UserProject", b =>
+                {
+                    b.HasOne("Data.Entities.Project", "Project")
+                        .WithMany("UserProjects")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Data.Entities.User", "User")
+                        .WithMany("UserProjects")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("ProductRewards", b =>
                 {
                     b.HasOne("Data.Entities.Product", null)
@@ -417,6 +451,8 @@ namespace Data.Migrations
                     b.Navigation("Costs");
 
                     b.Navigation("Rewards");
+
+                    b.Navigation("UserProjects");
                 });
 
             modelBuilder.Entity("Data.Entities.Reward", b =>
@@ -432,6 +468,8 @@ namespace Data.Migrations
             modelBuilder.Entity("Data.Entities.User", b =>
                 {
                     b.Navigation("Costs");
+
+                    b.Navigation("UserProjects");
                 });
 #pragma warning restore 612, 618
         }

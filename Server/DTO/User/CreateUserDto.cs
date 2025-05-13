@@ -14,10 +14,5 @@ namespace Server.DTO.User
         [Required, MinLength(6)]
         public string Password { get; set; } = null!;
 
-        [Required]
-        public TypeCooperation TypeCooperation { get; set; }
-
-        public decimal? FixedPrice { get; set; }
-        public byte? PercentPrice { get; set; }
     }
 }
