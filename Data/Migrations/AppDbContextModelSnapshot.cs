@@ -107,13 +107,13 @@ namespace Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime?>("DateClose")
+                    b.Property<int>("CurrencyId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("DateClose")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("DateCreation")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("DateUpdate")
+                    b.Property<DateTime>("DateStart")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
@@ -124,17 +124,16 @@ namespace Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("ProjectDuration")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Status")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<int>("TeamId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("TeamId")
-                        .IsUnique();
+                    b.HasIndex("CurrencyId");
 
                     b.ToTable("Projects", (string)null);
                 });
@@ -198,29 +197,6 @@ namespace Data.Migrations
                     b.ToTable("Sales", (string)null);
                 });
 
-            modelBuilder.Entity("Data.Entities.Team", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AdminId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AdminId");
-
-                    b.ToTable("Teams", (string)null);
-                });
-
             modelBuilder.Entity("Data.Entities.User", b =>
                 {
                     b.Property<int>("Id")
@@ -268,23 +244,33 @@ namespace Data.Migrations
             modelBuilder.Entity("Data.Entities.UserProject", b =>
                 {
                     b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnOrder(0);
 
                     b.Property<int>("ProjectId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnOrder(1);
 
-                    b.Property<decimal?>("FixedPrice")
+                    b.Property<decimal>("FixedPrice")
                         .HasColumnType("numeric");
 
-                    b.Property<byte?>("PercentPrice")
-                        .HasColumnType("smallint");
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("boolean");
 
-                    b.Property<int>("TypeCooperation")
-                        .HasColumnType("integer");
+                    b.Property<decimal>("PercentPrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("TypeCooperation")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.HasKey("UserId", "ProjectId");
 
-                    b.HasIndex("ProjectId");
+                    b.HasIndex("ProjectId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_UserProjects_Project_Admin")
+                        .HasFilter("\"IsAdmin\" = TRUE");
 
                     b.ToTable("UserProjects", (string)null);
                 });
@@ -302,21 +288,6 @@ namespace Data.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("ProductRewards", (string)null);
-                });
-
-            modelBuilder.Entity("UserTeams", b =>
-                {
-                    b.Property<int>("TeamId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("TeamId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserTeams", (string)null);
                 });
 
             modelBuilder.Entity("Data.Entities.Cost", b =>
@@ -340,13 +311,13 @@ namespace Data.Migrations
 
             modelBuilder.Entity("Data.Entities.Project", b =>
                 {
-                    b.HasOne("Data.Entities.Team", "Team")
-                        .WithOne("Project")
-                        .HasForeignKey("Data.Entities.Project", "TeamId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("Data.Entities.Currency", "Currency")
+                        .WithMany("Projects")
+                        .HasForeignKey("CurrencyId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Team");
+                    b.Navigation("Currency");
                 });
 
             modelBuilder.Entity("Data.Entities.Reward", b =>
@@ -369,17 +340,6 @@ namespace Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Reward");
-                });
-
-            modelBuilder.Entity("Data.Entities.Team", b =>
-                {
-                    b.HasOne("Data.Entities.User", "Admin")
-                        .WithMany()
-                        .HasForeignKey("AdminId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Admin");
                 });
 
             modelBuilder.Entity("Data.Entities.User", b =>
@@ -426,23 +386,10 @@ namespace Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("UserTeams", b =>
-                {
-                    b.HasOne("Data.Entities.Team", null)
-                        .WithMany()
-                        .HasForeignKey("TeamId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Data.Entities.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Data.Entities.Currency", b =>
                 {
+                    b.Navigation("Projects");
+
                     b.Navigation("Users");
                 });
 
@@ -458,11 +405,6 @@ namespace Data.Migrations
             modelBuilder.Entity("Data.Entities.Reward", b =>
                 {
                     b.Navigation("Sales");
-                });
-
-            modelBuilder.Entity("Data.Entities.Team", b =>
-                {
-                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("Data.Entities.User", b =>
