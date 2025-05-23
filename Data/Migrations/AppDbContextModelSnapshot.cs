@@ -73,6 +73,11 @@ namespace Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<decimal>("RateToBase")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("numeric(18,6)")
+                        .HasComment("Курс валюты относительно базовой (USD)");
+
                     b.Property<string>("Symbol")
                         .HasMaxLength(5)
                         .HasColumnType("character varying(5)");
@@ -152,8 +157,8 @@ namespace Data.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
