@@ -18,10 +18,6 @@ namespace Server.DTO.Project
         [Required]
         public int ProjectDuration { get; set; }
 
-
-        [Required]
-        public int CreatorUserId { get; set; }
-
         [Required]
         public int CurrencyId { get; set; }
     }
