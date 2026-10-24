@@ -1,4 +1,4 @@
-﻿using Server.DTO.Currency;
+using Server.DTO.Currency;
 using Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -52,7 +52,7 @@ namespace Server.Services.HostedServices
                     // Формируем и отправляем запрос к API курсов валют.
                     var client = _httpClientFactory.CreateClient("FixerApi");
                     var requestUrl = $"latest?access_key={_options.AccessKey}";
-                    _logger.LogInformation("Запрос к API валют: {url}", client.BaseAddress + requestUrl);
+                    _logger.LogInformation("Запрос курсов валют к Fixer API.");
 
                     var response = await client.GetAsync(requestUrl, stoppingToken);
                     response.EnsureSuccessStatusCode(); // Проверяем успешность HTTP ответа.
